@@ -1,0 +1,553 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ज्ञानशु -- SIGMA LEVEL TEST</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Tiro+Devanagari+Hindi:ital@0;1&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050508;--surface:#0d0d14;--surface2:#12121c;--border:#1e1e2e;
+  --accent:#ff3c00;--accent2:#ff8800;--gold:#ffd700;--cyan:#00e5ff;
+  --green:#00ff88;--red:#ff2255;--text:#f0eeff;--muted:#5a5a7a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;min-height:100vh;overflow-x:hidden;cursor:none;}
+
+#cursor{width:12px;height:12px;background:var(--accent);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform 0.1s,background 0.2s;mix-blend-mode:screen;}
+#cursor-ring{width:36px;height:36px;border:1px solid rgba(255,60,0,0.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.15s ease;}
+
+#particles-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.6;}
+.grid-bg{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(255,60,0,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,0,0.03) 1px,transparent 1px);background-size:60px 60px;animation:gridPulse 6s ease infinite;}
+@keyframes gridPulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.scanlines{position:fixed;inset:0;z-index:998;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.12) 3px,rgba(0,0,0,0.12) 4px);}
+
+#loader{position:fixed;inset:0;background:var(--bg);z-index:9997;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:opacity 0.6s,visibility 0.6s;}
+#loader.done{opacity:0;visibility:hidden;}
+.loader-logo{font-family:'Tiro Devanagari Hindi',serif;font-size:52px;background:linear-gradient(135deg,#fff,var(--gold),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:glowPulse 1s ease infinite;}
+.loader-bar-track{width:200px;height:2px;background:var(--border);}
+.loader-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));width:0;animation:loaderFill 1.5s ease forwards;box-shadow:0 0 10px var(--accent);}
+@keyframes loaderFill{to{width:100%;}}
+.loader-text{font-size:10px;letter-spacing:5px;color:var(--muted);}
+@keyframes glowPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(255,215,0,0.3));}50%{filter:drop-shadow(0 0 28px rgba(255,215,0,0.8));}}
+
+#app{position:relative;z-index:10;max-width:720px;margin:0 auto;padding:20px 24px 80px;}
+
+.site-header{text-align:center;padding:50px 0 10px;position:relative;}
+.sigma-bg-icon{font-family:'Bebas Neue',sans-serif;font-size:200px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:rgba(255,60,0,0.03);line-height:1;pointer-events:none;animation:slowSpin 30s linear infinite;}
+@keyframes slowSpin{to{transform:translate(-50%,-50%) rotate(360deg);}}
+.logo-hindi{font-family:'Tiro Devanagari Hindi',serif;font-size:clamp(52px,12vw,88px);line-height:1;background:linear-gradient(135deg,#fff 0%,var(--gold) 50%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:logoReveal 1.2s cubic-bezier(0.22,1,0.36,1) both;filter:drop-shadow(0 0 30px rgba(255,215,0,0.25));}
+.logo-sub{font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,4vw,24px);letter-spacing:12px;color:var(--accent);margin-top:4px;animation:logoReveal 1.4s cubic-bezier(0.22,1,0.36,1) 0.2s both;text-shadow:0 0 20px var(--accent);}
+@keyframes logoReveal{from{opacity:0;transform:translateY(30px) scale(0.9);filter:blur(10px);}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}}
+.header-divider{display:flex;align-items:center;gap:16px;margin:20px 0 8px;animation:fadeUp 1s ease 0.5s both;}
+.header-divider::before,.header-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.header-divider span{font-size:10px;letter-spacing:5px;color:var(--accent);white-space:nowrap;}
+.tagline{font-size:11px;color:var(--muted);letter-spacing:2px;animation:fadeUp 1s ease 0.7s both;margin-bottom:32px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+#start-screen{text-align:center;padding:10px 0 40px;}
+.warning-badge{display:inline-block;background:rgba(255,60,0,0.1);border:1px solid rgba(255,60,0,0.4);color:var(--accent);font-size:10px;letter-spacing:4px;padding:6px 16px;margin-bottom:24px;animation:badgePulse 2s ease infinite;}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,60,0,0);}50%{box-shadow:0 0 0 8px rgba(255,60,0,0.08);}}
+.intro-card{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-left:3px solid var(--accent);padding:26px 28px;margin-bottom:28px;text-align:left;animation:fadeUp 1s ease 0.9s both;}
+.intro-card p{font-size:13px;line-height:1.9;color:#8888aa;font-family:'Rajdhani',sans-serif;}
+.intro-card p strong{color:var(--text);}
+.stats-row{display:flex;justify-content:center;gap:32px;margin:24px 0;animation:fadeUp 1s ease 1.1s both;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);line-height:1;text-shadow:0 0 20px rgba(255,215,0,0.4);}
+.stat-label{font-size:9px;letter-spacing:3px;color:var(--muted);margin-top:4px;}
+.stat-divider{width:1px;background:var(--border);height:40px;align-self:center;}
+
+.live-score-bar{background:var(--surface);border:1px solid var(--border);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;position:sticky;top:8px;z-index:100;backdrop-filter:blur(10px);}
+.lsb-label{font-size:9px;letter-spacing:3px;color:var(--muted);white-space:nowrap;}
+.lsb-track{flex:1;height:6px;background:var(--border);position:relative;}
+.lsb-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width 0.8s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px var(--accent);}
+.lsb-score{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);white-space:nowrap;min-width:70px;text-align:right;transition:all 0.3s;}
+.lsb-score.bump{animation:scoreBump 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes scoreBump{0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1);}}
+
+.progress-wrap{margin-bottom:20px;}
+.progress-labels{display:flex;justify-content:space-between;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+.progress-labels .q-pct{color:var(--accent);}
+.progress-track{height:3px;background:var(--border);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 8px var(--accent);}
+
+.question-card{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);padding:32px 28px;margin-bottom:20px;position:relative;overflow:hidden;}
+.question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:shimmer 3s ease infinite;}
+@keyframes shimmer{0%{opacity:0.3;}50%{opacity:1;}100%{opacity:0.3;}}
+.question-card::after{content:attr(data-num);position:absolute;right:16px;bottom:8px;font-family:'Bebas Neue',sans-serif;font-size:80px;color:rgba(255,60,0,0.05);line-height:1;pointer-events:none;}
+.q-number{font-size:10px;letter-spacing:5px;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.q-number::before{content:'';display:inline-block;width:20px;height:1px;background:var(--accent);}
+.q-lang-badge{display:inline-block;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);color:var(--cyan);font-size:9px;letter-spacing:3px;padding:2px 8px;}
+.q-text{font-family:'Rajdhani',sans-serif;font-size:clamp(18px,4vw,24px);font-weight:600;line-height:1.35;margin-bottom:24px;color:var(--text);}
+.q-text.hindi{font-family:'Tiro Devanagari Hindi',serif;font-size:clamp(16px,3.5vw,21px);line-height:1.7;}
+
+.options{display:flex;flex-direction:column;gap:10px;}
+.option{background:rgba(255,255,255,0.02);border:1px solid var(--border);color:#9999bb;padding:14px 18px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.5px;text-align:left;cursor:none;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden;}
+.option.hindi-opt{font-family:'Tiro Devanagari Hindi',serif;font-size:14px;letter-spacing:0;line-height:1.6;}
+.option::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(255,60,0,0.15),transparent);transition:width 0.3s ease;}
+.option:hover{border-color:rgba(255,60,0,0.5);color:#fff;transform:translateX(4px);}
+.option:hover::before{width:100%;}
+.option.selected{border-color:var(--accent);background:rgba(255,60,0,0.1);color:#fff;transform:translateX(6px);}
+.option.selected::before{width:100%;}
+.option.correct-reveal{border-color:var(--green) !important;background:rgba(0,255,136,0.08) !important;color:#fff !important;transform:translateX(0) !important;}
+.option.wrong-reveal{border-color:var(--red) !important;background:rgba(255,34,85,0.06) !important;color:#666 !important;transform:translateX(0) !important;}
+.option.disabled{pointer-events:none;}
+.option-tag{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--border);font-size:10px;margin-right:12px;color:var(--accent);transition:all 0.2s;vertical-align:middle;flex-shrink:0;}
+.option.selected .option-tag{background:var(--accent);color:#fff;box-shadow:0 0 10px var(--accent);}
+.option.correct-reveal .option-tag{background:var(--green) !important;color:#000 !important;}
+.option.wrong-reveal .option-tag{background:var(--red) !important;color:#fff !important;}
+
+.ripple{position:absolute;border-radius:50%;background:rgba(255,60,0,0.3);transform:scale(0);animation:rippleAnim 0.6s linear;pointer-events:none;}
+@keyframes rippleAnim{to{transform:scale(4);opacity:0;}}
+
+/* ══ REACTION OVERLAY ══ */
+#reaction-overlay{position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 0.35s;}
+#reaction-overlay.show{opacity:1;pointer-events:all;}
+.reaction-backdrop{position:absolute;inset:0;background:rgba(5,5,8,0.88);backdrop-filter:blur(12px);}
+.reaction-box{position:relative;z-index:1;text-align:center;max-width:480px;width:90%;padding:20px;animation:reactionPop 0.55s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes reactionPop{from{opacity:0;transform:scale(0.5) rotate(-8deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+
+.reaction-score-ring{width:150px;height:150px;margin:0 auto 16px;position:relative;}
+.reaction-score-ring svg{transform:rotate(-90deg);}
+.rsr-bg{fill:none;stroke:var(--border);stroke-width:6;}
+.rsr-fill{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:345;stroke-dashoffset:345;transition:stroke-dashoffset 1s cubic-bezier(0.22,1,0.36,1) 0.2s;}
+.rsr-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rsr-num{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;}
+.rsr-label{font-size:9px;letter-spacing:3px;color:var(--muted);}
+
+.reaction-emoji{font-size:52px;margin-bottom:12px;animation:emojiFloat 1.5s ease infinite;}
+@keyframes emojiFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-10px) rotate(5deg);}}
+.reaction-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(26px,7vw,46px);letter-spacing:3px;line-height:1.1;margin-bottom:10px;}
+.reaction-sub{font-family:'Tiro Devanagari Hindi',serif;font-size:clamp(13px,3.5vw,17px);color:#aaa;line-height:1.6;margin-bottom:16px;padding:0 12px;}
+.reaction-cumul{font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:22px;}
+.reaction-cumul .val{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;}
+
+.btn-continue{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;padding:14px 44px;border:none;cursor:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 4px 20px rgba(255,60,0,0.4);}
+.btn-continue:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 30px rgba(255,60,0,0.55);}
+
+/* big flash text */
+.tier-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:6000;font-family:'Bebas Neue',sans-serif;font-size:clamp(50px,15vw,110px);opacity:0;pointer-events:none;letter-spacing:4px;white-space:nowrap;}
+.tier-flash.pop{animation:tierPop 1.3s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes tierPop{0%{opacity:0;transform:translate(-50%,-50%) scale(0.2) rotate(-20deg);}35%{opacity:1;transform:translate(-50%,-50%) scale(1.1) rotate(2deg);}65%{transform:translate(-50%,-50%) scale(0.95);}80%{opacity:1;transform:translate(-50%,-50%) scale(1);}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3);}}
+
+.nav-row{display:flex;justify-content:flex-end;gap:12px;margin-top:8px;}
+.btn{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;padding:13px 36px;border:none;cursor:none;transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 20px rgba(255,60,0,0.35);}
+.btn-primary:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 8px 30px rgba(255,60,0,0.5);}
+.btn-primary:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none;}
+
+#result-screen{animation:screenEnter 0.6s ease both;}
+@keyframes screenEnter{from{opacity:0;transform:translateY(20px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.result-top{text-align:center;padding:20px 0 24px;}
+.result-ring{position:relative;display:inline-block;margin-bottom:16px;}
+.result-ring svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:5;}
+.ring-fill{fill:none;stroke:url(#ringGrad);stroke-width:5;stroke-linecap:round;stroke-dasharray:408;stroke-dashoffset:408;transition:stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1) 0.3s;}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.result-rank{font-family:'Bebas Neue',sans-serif;font-size:clamp(34px,8vw,54px);line-height:0.9;background:linear-gradient(135deg,var(--accent) 0%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:rankPop 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;}
+@keyframes rankPop{from{opacity:0;transform:scale(0.5) rotate(-10deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+.result-score-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);}
+.result-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,5vw,30px);letter-spacing:5px;color:var(--text);margin-top:8px;animation:fadeUp 0.8s ease 0.8s both;}
+.trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0;}
+.trait-chip{background:var(--surface);border:1px solid var(--border);padding:16px;animation:chipEnter 0.5s ease both;}
+.trait-chip:nth-child(1){animation-delay:0.9s;}.trait-chip:nth-child(2){animation-delay:1.0s;}.trait-chip:nth-child(3){animation-delay:1.1s;}.trait-chip:nth-child(4){animation-delay:1.2s;}.trait-chip:nth-child(5){animation-delay:1.3s;}
+@keyframes chipEnter{from{opacity:0;transform:scale(0.9) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.trait-label{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;}
+.trait-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--text);}
+.trait-bar{height:2px;background:var(--border);margin-top:8px;}
+.trait-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width 1.5s cubic-bezier(0.22,1,0.36,1);width:0;}
+.result-desc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);padding:20px 24px;font-size:13px;line-height:1.9;color:#8888aa;margin:18px 0;animation:fadeUp 0.8s ease 1.5s both;}
+.result-desc strong{color:var(--text);}
+.verdict-box{text-align:center;padding:26px;background:linear-gradient(135deg,rgba(255,60,0,0.06),rgba(255,215,0,0.04));border:1px solid rgba(255,60,0,0.25);margin:18px 0;animation:fadeUp 0.8s ease 1.7s both;position:relative;overflow:hidden;}
+.verdict-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(255,60,0,0.1),transparent 70%);animation:verdictPulse 3s ease infinite;}
+@keyframes verdictPulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+.verdict-label{font-size:10px;letter-spacing:5px;color:var(--accent);margin-bottom:10px;}
+.verdict-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(14px,3.5vw,22px);color:var(--text);letter-spacing:2px;position:relative;z-index:1;}
+
+.q-enter{animation:qEnter 0.4s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes qEnter{from{opacity:0;transform:translateX(40px) scale(0.97);}to{opacity:1;transform:translateX(0) scale(1);}}
+.q-exit{animation:qExitAnim 0.28s ease both;}
+@keyframes qExitAnim{to{opacity:0;transform:translateX(-40px) scale(0.96);}}
+
+.hidden{display:none !important;}
+footer{text-align:center;padding:36px 0 20px;font-size:10px;color:var(--muted);letter-spacing:3px;border-top:1px solid var(--border);margin-top:50px;}
+footer span{color:var(--accent);}
+footer a{color:inherit;text-decoration:none;transition:color 0.3s;}
+footer a:hover{color:var(--gold);}
+#confetti-canvas{position:fixed;inset:0;z-index:4999;pointer-events:none;}
+@media(max-width:480px){.trait-grid{grid-template-columns:1fr;}.question-card{padding:20px 14px;}.reaction-box{padding:16px;}}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="particles-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
+<div class="grid-bg"></div>
+<div class="scanlines"></div>
+
+<div id="loader">
+  <div class="loader-logo">ज्ञानशु</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill"></div></div>
+  <div class="loader-text">INITIALIZING SIGMA CALIBRATION...</div>
+</div>
+
+<div id="reaction-overlay">
+  <div class="reaction-backdrop" onclick="continueQuiz()"></div>
+  <div class="reaction-box" id="reaction-box">
+    <div class="reaction-emoji" id="r-emoji">🔱</div>
+    <div class="reaction-score-ring">
+      <svg width="150" height="150" viewBox="0 0 150 150">
+        <defs>
+          <linearGradient id="rsrGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff3c00"/>
+            <stop offset="100%" stop-color="#ffd700"/>
+          </linearGradient>
+        </defs>
+        <circle class="rsr-bg" cx="75" cy="75" r="55"/>
+        <circle class="rsr-fill" id="rsr-fill" cx="75" cy="75" r="55"/>
+      </svg>
+      <div class="rsr-center">
+        <div class="rsr-num" id="r-score-num">0</div>
+        <div class="rsr-label">/ 10</div>
+      </div>
+    </div>
+    <div class="reaction-title" id="r-title">SIGMA MOVE!</div>
+    <div class="reaction-sub" id="r-sub">Loading...</div>
+    <div class="reaction-cumul">Total Sigma Points: <span class="val" id="r-total">0</span> / <span id="r-max">200</span></div>
+    <button class="btn-continue" onclick="continueQuiz()">आगे बढ़ो →</button>
+  </div>
+</div>
+
+<div class="tier-flash" id="tier-flash"></div>
+
+<div id="app">
+  <header class="site-header">
+    <div class="sigma-bg-icon">Σ</div>
+    <div class="logo-hindi">ज्ञानशु</div>
+    <div class="logo-sub">SIGMA LEVEL TEST</div>
+    <div class="header-divider"><span>◈ PERSONALITY CALIBRATION ◈</span></div>
+    <div class="tagline">// अपनी असली पहचान जानो -- No Filter. No Sugarcoating. //</div>
+  </header>
+
+  <div id="start-screen">
+    <div class="warning-badge">⚠ BRUTALLY HONEST ⚠</div>
+    <div class="intro-card">
+      <p>
+        <strong>20 सवाल। हर जवाब के बाद live Sigma score।</strong><br><br>
+        हर question के बाद तुम्हें <strong>0–10 का Sigma Score</strong> मिलेगा।<br><br>
+        🔱 <strong>10/10?</strong> → तुम हमारे <strong>Sigma</strong> हो<br>
+        💀 <strong>5 से कम?</strong> → <strong>तुम मानत नहीं हो</strong> -- right there, that moment
+      </p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">20</div><div class="stat-label">QUESTIONS</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">MAX PER Q</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">SIGMA TIERS</div></div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()" style="font-size:22px;padding:16px 52px;animation:fadeUp 1s ease 1.3s both;">
+      TEST शुरू करो →
+    </button>
+  </div>
+
+  <div id="quiz-screen" class="hidden">
+    <div class="live-score-bar">
+      <div class="lsb-label">SIGMA</div>
+      <div class="lsb-track"><div class="lsb-fill" id="lsb-fill" style="width:0%"></div></div>
+      <div class="lsb-score" id="lsb-score">0 / 200</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-labels">
+        <span id="q-counter">Q 1 / 20</span>
+        <span class="q-pct" id="q-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="question-card q-enter" id="question-card" data-num="01">
+      <div class="q-number" id="q-number">01 / 20 <span class="q-lang-badge" id="q-lang">ENG</span></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options-container"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-primary" id="btn-next" onclick="submitAnswer()" disabled>जवाब दो →</button>
+    </div>
+  </div>
+
+  <div id="result-screen" class="hidden">
+    <div class="result-top">
+      <div style="font-size:10px;letter-spacing:5px;color:var(--accent);margin-bottom:20px;">तुम्हारा FINAL SIGMA SCORE</div>
+      <div class="result-ring">
+        <svg width="190" height="190" viewBox="0 0 190 190">
+          <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ff3c00"/>
+              <stop offset="50%" stop-color="#ff8800"/>
+              <stop offset="100%" stop-color="#ffd700"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="95" cy="95" r="65"/>
+          <circle class="ring-fill" id="ring-fill" cx="95" cy="95" r="65"/>
+        </svg>
+        <div class="ring-center">
+          <div class="result-rank" id="result-rank">--</div>
+          <div class="result-score-num"><span id="score-display">0</span>/200</div>
+        </div>
+      </div>
+      <div class="result-title" id="result-title">CALCULATING...</div>
+    </div>
+    <div class="trait-grid" id="trait-grid"></div>
+    <div class="result-desc" id="result-desc"></div>
+    <div class="verdict-box">
+      <div class="verdict-label">◈ FINAL VERDICT ◈</div>
+      <div class="verdict-text" id="verdict-text"></div>
+    </div>
+    <div style="text-align:center;margin-top:28px;animation:fadeUp 0.8s ease 2s both;">
+      <button class="btn btn-primary" onclick="restartQuiz()">फिर से Test दो</button>
+    </div>
+  </div>
+
+  <footer>
+    <span>ज्ञानशु</span> SIGMA LEVEL © 2026 &nbsp;·&nbsp; Founder: **Gyanshu**<br>
+    <a href="tel:+918521152338" style="display:inline-block;margin-top:10px;border:1px solid var(--border);padding:5px 15px;border-radius:20px;">Contact Support: +91 8521152338</a>
+  </footer>
+</div>
+
+<script>
+// CURSOR
+const cursor=document.getElementById('cursor'),cring=document.getElementById('cursor-ring');
+let cx=0,cy=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{cx=e.clientX;cy=e.clientY;cursor.style.left=cx+'px';cursor.style.top=cy+'px';});
+(function lr(){rx+=(cx-rx)*0.12;ry+=(cy-ry)*0.12;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(lr);})();
+document.addEventListener('mousedown',()=>{cursor.style.transform='translate(-50%,-50%) scale(0.5)';});
+document.addEventListener('mouseup',()=>{cursor.style.transform='translate(-50%,-50%) scale(1)';});
+document.addEventListener('mouseover',e=>{
+  if(e.target.matches('button,.option,.btn-continue')){cursor.style.background='var(--gold)';cring.style.borderColor='rgba(255,215,0,0.6)';cring.style.transform='translate(-50%,-50%) scale(1.5)';}
+  else{cursor.style.background='var(--accent)';cring.style.borderColor='rgba(255,60,0,0.5)';cring.style.transform='translate(-50%,-50%) scale(1)';}
+});
+
+// PARTICLES
+const pc=document.getElementById('particles-canvas'),p2=pc.getContext('2d');let parts=[];
+function rsz(){pc.width=window.innerWidth;pc.height=window.innerHeight;}rsz();window.addEventListener('resize',rsz);
+class P{constructor(){this.reset();}reset(){this.x=Math.random()*pc.width;this.y=Math.random()*pc.height;this.s=Math.random()*1.5+0.3;this.vx=(Math.random()-0.5)*0.3;this.vy=-Math.random()*0.4-0.1;this.a=Math.random()*0.5+0.1;this.life=1;this.dec=Math.random()*0.003+0.001;this.c=['#ff3c00','#ffd700','#00e5ff'][Math.floor(Math.random()*3)];}update(){this.x+=this.vx;this.y+=this.vy;this.life-=this.dec;if(this.life<=0||this.y<0)this.reset();}draw(){p2.save();p2.globalAlpha=this.life*this.a;p2.fillStyle=this.c;p2.shadowColor=this.c;p2.shadowBlur=4;p2.beginPath();p2.arc(this.x,this.y,this.s,0,Math.PI*2);p2.fill();p2.restore();}}
+for(let i=0;i<100;i++)parts.push(new P());
+(function ap(){p2.clearRect(0,0,pc.width,pc.height);parts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(ap);})();
+
+// CONFETTI
+const cc=document.getElementById('confetti-canvas'),c2=cc.getContext('2d');let cparts=[];
+function rszc(){cc.width=window.innerWidth;cc.height=window.innerHeight;}rszc();window.addEventListener('resize',rszc);
+class Conf{constructor(){this.x=Math.random()*cc.width;this.y=-10;this.vx=(Math.random()-0.5)*6;this.vy=Math.random()*4+2;this.r=Math.random()*8+3;this.c=['#ff3c00','#ffd700','#00e5ff','#ff8800','#fff','#00ff88'][Math.floor(Math.random()*6)];this.rot=Math.random()*360;this.rv=(Math.random()-0.5)*8;this.life=1;this.dec=0.01;}update(){this.x+=this.vx;this.y+=this.vy;this.rot+=this.rv;this.vy+=0.05;this.life-=this.dec;}draw(){c2.save();c2.globalAlpha=this.life;c2.fillStyle=this.c;c2.translate(this.x,this.y);c2.rotate(this.rot*Math.PI/180);c2.fillRect(-this.r/2,-this.r/4,this.r,this.r/2);c2.restore();}}
+function launchConfetti(n){for(let i=0;i<(n||80);i++)setTimeout(()=>cparts.push(new Conf()),i*15);}
+(function ac(){c2.clearRect(0,0,cc.width,cc.height);cparts=cparts.filter(p=>p.life>0);cparts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(ac);})();
+
+// LOADER
+setTimeout(()=>document.getElementById('loader').classList.add('done'),1600);
+
+// ── QUESTIONS ──
+const questions=[
+  {text:"Someone disrespects you in front of your friends. Your move?",lang:'ENG',hindi:false,
+   options:[{t:"Stay dead silent -- let them feel the void",pts:8},{t:"Calmly drop one sharp line and walk away",pts:10},{t:"Laugh it off -- not worth my energy",pts:5},{t:"Get loud and explosive right there",pts:2}]},
+  {text:"Friday night, plans fall through. What actually happens?",lang:'ENG',hindi:false,
+   options:[{t:"I make something happen solo -- gym, drive, walk",pts:10},{t:"I pivot and call one or two people",pts:7},{t:"I scroll my phone feeling empty",pts:3},{t:"I spiral and text everyone hoping someone responds",pts:0}]},
+  {text:"In a high-pressure confrontation, you are...",lang:'ENG',hindi:false,
+   options:[{t:"Ice cold -- my voice drops, not rises",pts:10},{t:"Fired up but keeping it together",pts:7},{t:"Nervous but holding the line",pts:4},{t:"I avoid confrontations at all costs",pts:0}]},
+  {text:"3 months of grinding. Zero results. You...",lang:'ENG',hindi:false,
+   options:[{t:"Diagnose the system, adjust, and go again",pts:10},{t:"Take a week off then return harder",pts:7},{t:"Wonder if I'm just not built for it",pts:3},{t:"Quit and blame circumstances",pts:0}]},
+  {text:"Other people's opinions of you?",lang:'ENG',hindi:false,
+   options:[{t:"Zero weight. I live by my own code",pts:10},{t:"Aware of them but they don't change my moves",pts:7},{t:"They bother me more than I'd admit",pts:3},{t:"I actively shape myself to be liked",pts:0}]},
+  {text:"Physical fitness and discipline right now?",lang:'ENG',hindi:false,
+   options:[{t:"I train consistently. Body is a priority",pts:10},{t:"I do something, but not seriously",pts:5},{t:"I keep restarting but never locking in",pts:2},{t:"Don't think about it much",pts:0}]},
+  {text:"High-stakes moment -- competition, interview, fight -- you...",lang:'ENG',hindi:false,
+   options:[{t:"Peak under pressure -- I was built for this",pts:10},{t:"Mostly solid with occasional cracks",pts:7},{t:"Usually underperform when it counts",pts:3},{t:"Avoid high-stakes entirely",pts:0}]},
+  {text:"You meet someone far more successful. First instinct?",lang:'ENG',hindi:false,
+   options:[{t:"Curiosity -- I want to know exactly how they got there",pts:10},{t:"Respect, then internal fire to level up",pts:8},{t:"Brief insecurity then I shake it off",pts:4},{t:"Envy or dismissal",pts:1}]},
+  {text:"Extended alone time -- how do you handle it?",lang:'ENG',hindi:false,
+   options:[{t:"I thrive solo -- solitude is power",pts:10},{t:"Fine but prefer occasional human contact",pts:6},{t:"Get restless after a day or two",pts:3},{t:"Need people constantly or I spiral",pts:0}]},
+  {text:"Deep down, what actually drives you?",lang:'ENG',hindi:false,
+   options:[{t:"A vision only I can see -- I don't explain it",pts:10},{t:"Proving something to myself",pts:8},{t:"Wanting approval from people I respect",pts:3},{t:"Honestly still figuring it out",pts:1}]},
+  // HINDI
+  {text:"जब कोई तुम्हें Public में Challenge करे, तुम्हारा reaction?",lang:'HIN',hindi:true,
+   options:[{t:"चुप रहो, आँखों से जवाब दो -- silence सबसे बड़ा weapon",pts:10},{t:"शांत रहकर एक sharp line बोलो और निकल जाओ",pts:9},{t:"Nervous हो जाओ, कुछ बोलने की कोशिश करो",pts:3},{t:"गुस्से में आकर scene बना दो",pts:1}]},
+  {text:"तुम्हारा दिन बहुत बुरा गया। रात को तुम क्या करते हो?",lang:'HIN',hindi:true,
+   options:[{t:"Reflect करते हो, सो जाते हो, सुबह fresh start",pts:10},{t:"किसी करीबी से बात करके हल्का महसूस करते हो",pts:7},{t:"Phone scroll करते रहते हो घंटों तक",pts:2},{t:"दुनिया को blame करते हो और rant करते हो",pts:0}]},
+  {text:"दोस्त कुछ ऐसा करने को बोलें जो तुम्हें गलत लगे?",lang:'HIN',hindi:true,
+   options:[{t:"साफ मना -- बिना guilt के, बिना explanation के",pts:10},{t:"अपनी बात रखते हो, फिर उनका decision मानते हो",pts:7},{t:"असमंजस रहता है लेकिन साथ चले जाते हो",pts:2},{t:"हाँ बोल देते हो -- rejection से डर है",pts:0}]},
+  {text:"पैसे की तंगी, कोई रास्ता नहीं दिख रहा -- तुम्हारा attitude?",lang:'HIN',hindi:true,
+   options:[{t:"Problem को opportunity में convert करने का रास्ता ढूंढते हो",pts:10},{t:"Stress होता है लेकिन काम पर focus रखते हो",pts:7},{t:"Hope छोड़ने लगते हो, demotivate हो जाते हो",pts:2},{t:"दूसरों के भरोसे बैठे रहते हो",pts:0}]},
+  {text:"कोई पीठ पीछे बुराई करे और तुम्हें पता चले?",lang:'HIN',hindi:true,
+   options:[{t:"Ignore -- जिनकी life में हो, वो gossip करेंगे ही",pts:10},{t:"सीधे उस बंदे से बात -- बिना drama के",pts:9},{t:"अंदर से hurt होते हो लेकिन कुछ नहीं करते",pts:3},{t:"तुम भी उसकी बुराई शुरू कर देते हो",pts:0}]},
+  // More ENG
+  {text:"Someone keeps pushing your buttons. Your response?",lang:'ENG',hindi:false,
+   options:[{t:"Don't react -- just stare until they realize",pts:10},{t:"Set a clear boundary with zero emotion",pts:9},{t:"Get tense but hold back",pts:4},{t:"React poorly and regret it",pts:1}]},
+  {text:"Squad wants to do something dumb. You...",lang:'ENG',hindi:false,
+   options:[{t:"Say your piece clearly, then respect their choice",pts:10},{t:"Go along but stay mentally detached",pts:5},{t:"Silently comply",pts:2},{t:"Join the hype -- loyalty over logic",pts:0}]},
+  {text:"Your sleep, nutrition, daily structure?",lang:'ENG',hindi:false,
+   options:[{t:"Locked in -- I protect energy like it's currency",pts:10},{t:"Decent, room to improve",pts:6},{t:"All over the place -- will fix it soon™",pts:2},{t:"Total chaos and I've accepted it",pts:0}]},
+  {text:"Someone challenges your intelligence publicly. You...",lang:'ENG',hindi:false,
+   options:[{t:"Let them finish. Dismantle calmly with facts",pts:10},{t:"Confident response, keep it short",pts:8},{t:"Get defensive and emotional",pts:2},{t:"Back down even knowing I'm right",pts:0}]},
+  {text:"In an intimate situation, who leads?",lang:'ENG',hindi:false,
+   options:[{t:"Me -- confidently, fully present and in control",pts:10},{t:"I read the energy and step up naturally",pts:8},{t:"Usually follow their lead",pts:4},{t:"I freeze and hope things work themselves out",pts:0}]},
+];
+
+// REACTION DEFINITIONS
+const REACTIONS = {
+  perfect: { emoji:'🔱', title:'तुम हमारे SIGMA हो!', color:'var(--gold)', sub:'भाई 10/10 -- यही असली sigma energy है। बाकी सब माफ है तेरा।', ring:'url(#rsrGrad)', flash:'🔱 SIGMA 🔱', flashColor:'var(--gold)' },
+  high: { emoji:'⚡', title:'SOLID SIGMA MOVE', color:'var(--cyan)', sub:'Strong move bhai. Sigma की राह पर हो -- टिके रहो, आगे बढ़ते रहो।', ring:'#00e5ff', flash:null },
+  mid: { emoji:'😤', title:'AVERAGE MOVE', color:'var(--accent2)', sub:'Thoda better hona chahiye tha yaar... potential dikhta hai but execution average रहा।', ring:'var(--accent2)', flash:null },
+  low: { emoji:'💀', title:'तुम मानत नहीं हो', color:'var(--red)', sub:'Bhai yeh sigma nahi tha. Seedha omega territory. Sharam karo thodi.', ring:'#ff2255', flash:'💀 MANTA NAHI 💀', flashColor:'var(--red)' },
+  zero: { emoji:'🪦', title:'BRO... REALLY? 0??', color:'var(--red)', sub:'ZERO POINTS. Bhai ek dum manta nahi tu. Pure omega energy.', ring:'#ff2255', flash:'☠️ ZERO SIGMA ☠️', flashColor:'var(--red)' }
+};
+
+const TIERS=[
+  {min:0,max:59,rank:'OMEGA',title:'THE LOST ONE', desc:`<strong>भाई सच बोलूं?</strong> You're running on autopilot. Not weakness -- just conditioning. Wake up.`, verdict:'The world shapes you. Time to reverse that.', traits:{Confidence:15,Discipline:18,Composure:22,Independence:10,Resilience:15}},
+  {min:60,max:99,rank:'BETA',title:'CAPABLE BUT SOFT', desc:`<strong>Potential है तुममें</strong> -- but you fold under pressure. Comfort zone is your enemy.`, verdict:'Capable. Not yet forged.', traits:{Confidence:42,Discipline:45,Composure:50,Independence:38,Resilience:44}},
+  {min:100,max:139,rank:'ALPHA',title:'IN THE ARENA', desc:`<strong>तुम मैदान में हो।</strong> Real confidence, drive to lead. But you still crave applause.`, verdict:'You lead the pack. Now learn to walk alone.', traits:{Confidence:72,Discipline:68,Composure:62,Independence:58,Resilience:70}},
+  {min:140,max:169,rank:'SIGMA',title:'THE LONE WOLF', desc:`<strong>तुम hierarchy के बाहर हो।</strong> Self-directed, moving in silence. Most people can't read you.`, verdict:"You don't follow the hierarchy. You transcend it.", traits:{Confidence:88,Discipline:82,Composure:92,Independence:96,Resilience:85}},
+  {min:170,max:200,rank:'APEX SIGMA',title:'BEYOND THE GRID', desc:`<strong>यह बहुत rare है।</strong> You ARE strength. The apex doesn't seek recognition. तुम सच में हमारे Sigma हो 🔱`, verdict:'The grid cannot contain you.', traits:{Confidence:99,Discipline:97,Composure:98,Independence:99,Resilience:96}},
+];
+
+// STATE
+let currentQ=0,totalScore=0,selectedIdx=null,busy=false;
+
+function startQuiz(){
+  const ss=document.getElementById('start-screen');
+  ss.style.animation='qExitAnim 0.3s ease both';
+  setTimeout(()=>{ss.classList.add('hidden');document.getElementById('quiz-screen').classList.remove('hidden');renderQuestion();},280);
+}
+
+// SHUFFLE FUNCTION
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function renderQuestion(){
+  const q=questions[currentQ];
+  const tot=questions.length;
+  
+  // Clone options and shuffle if question index > 1 (after the second question)
+  let displayOptions = JSON.parse(JSON.stringify(q.options));
+  if(currentQ > 1) {
+    displayOptions = shuffle(displayOptions);
+  }
+
+  document.getElementById('q-counter').textContent=`Q ${currentQ+1} / ${tot}`;
+  document.getElementById('q-pct').textContent=Math.round(currentQ/tot*100)+'%';
+  document.getElementById('progress-fill').style.width=(currentQ/tot*100)+'%';
+  const card=document.getElementById('question-card');
+  card.setAttribute('data-num',String(currentQ+1).padStart(2,'0'));
+  document.getElementById('q-number').innerHTML=`${String(currentQ+1).padStart(2,'0')} / ${tot} <span class="q-lang-badge">${q.lang}</span>`;
+  const qt=document.getElementById('q-text');qt.textContent=q.text;qt.className='q-text'+(q.hindi?' hindi':'');
+  
+  const cont=document.getElementById('options-container');cont.innerHTML='';
+  selectedIdx=null;document.getElementById('btn-next').disabled=true;
+  const tags=['A','B','C','D'];
+  
+  displayOptions.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='option'+(q.hindi?' hindi-opt':'');
+    b.innerHTML=`<span class="option-tag">${tags[i]}</span>${opt.t}`;
+    b.onclick=e=>{
+        createRipple(e,b);
+        pickOption(i, opt.pts, displayOptions);
+    };
+    cont.appendChild(b);
+    b.style.opacity='0';b.style.transform='translateX(20px)';
+    setTimeout(()=>{b.style.transition='all 0.35s cubic-bezier(0.34,1.56,0.64,1)';b.style.opacity='1';b.style.transform='translateX(0)';},80+i*60);
+  });
+  card.style.animation='none';card.offsetHeight;card.style.animation='qEnter 0.4s cubic-bezier(0.34,1.56,0.64,1) both';
+}
+
+let tempPoints = 0;
+function pickOption(idx, pts, currentDisplaySet){
+  selectedIdx=idx;
+  tempPoints = pts;
+  document.querySelectorAll('.option').forEach((b,i)=>b.classList.toggle('selected',i===idx));
+  document.getElementById('btn-next').disabled=false;
+}
+
+function createRipple(e,btn){
+  const r=document.createElement('span');r.className='ripple';
+  const rect=btn.getBoundingClientRect(),sz=Math.max(rect.width,rect.height)*2;
+  r.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-rect.left-sz/2}px;top:${e.clientY-rect.top-sz/2}px`;
+  btn.appendChild(r);setTimeout(()=>r.remove(),700);
+}
+
+function submitAnswer(){
+  if(selectedIdx===null||busy)return;
+  busy=true;
+  totalScore += tempPoints;
+  setTimeout(()=>showReaction(tempPoints),500);
+}
+
+function showReaction(pts){
+  const key = pts === 10 ? 'perfect' : (pts >= 7 ? 'high' : (pts >= 4 ? 'mid' : (pts > 0 ? 'low' : 'zero')));
+  const rd=REACTIONS[key];
+  document.getElementById('r-emoji').textContent=rd.emoji;
+  document.getElementById('r-title').textContent=rd.title;
+  document.getElementById('r-title').style.color=rd.color;
+  document.getElementById('r-sub').textContent=rd.sub;
+  document.getElementById('r-total').textContent=totalScore;
+  document.getElementById('r-max').textContent=questions.length*10;
+  document.getElementById('r-score-num').textContent=pts;
+  document.getElementById('r-score-num').style.color=rd.color;
+  const circ=2*Math.PI*55;
+  const fill=document.getElementById('rsr-fill');
+  fill.style.stroke=rd.ring;
+  fill.style.strokeDashoffset=String(circ);
+  setTimeout(()=>{fill.style.strokeDashoffset=String(circ-(pts/10)*circ);},300);
+  const maxPts=questions.length*10;
+  document.getElementById('lsb-fill').style.width=(totalScore/maxPts*100)+'%';
+  document.getElementById('lsb-score').textContent=totalScore+' / '+maxPts;
+  if(rd.flash){
+    const fl=document.getElementById('tier-flash');
+    fl.textContent=rd.flash; fl.style.color=rd.flashColor; fl.classList.remove('pop'); void fl.offsetWidth; fl.classList.add('pop');
+  }
+  if(key==='perfect')launchConfetti(60);
+  document.getElementById('reaction-overlay').classList.add('show');
+}
+
+function continueQuiz(){
+  busy=false;
+  document.getElementById('reaction-overlay').classList.remove('show');
+  if(currentQ<questions.length-1){
+    currentQ++; renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult(){
+  document.getElementById('quiz-screen').classList.add('hidden');
+  document.getElementById('result-screen').classList.remove('hidden');
+  const tier=TIERS.find(t=>totalScore>=t.min&&totalScore<=t.max)||TIERS[TIERS.length-1];
+  document.getElementById('result-rank').textContent=tier.rank;
+  document.getElementById('result-title').textContent=tier.title;
+  document.getElementById('result-desc').innerHTML=tier.desc;
+  document.getElementById('verdict-text').textContent=tier.verdict;
+  document.getElementById('score-display').textContent=totalScore;
+  const pct=Math.round(totalScore/200*100);
+  const circ=2*Math.PI*65;
+  document.getElementById('ring-fill').style.strokeDashoffset=String(circ-(pct/100)*circ);
+  const grid=document.getElementById('trait-grid');grid.innerHTML='';
+  Object.entries(tier.traits).forEach(([n,v])=>{
+    const chip=document.createElement('div');chip.className='trait-chip';
+    chip.innerHTML=`<div class="trait-label">${n}</div><div class="trait-val">${v}/100</div><div class="trait-bar"><div class="trait-bar-fill" style="width:${v}%"></div></div>`;
+    grid.appendChild(chip);
+  });
+}
+
+function restartQuiz(){
+  currentQ=0;totalScore=0;busy=false;
+  document.getElementById('result-screen').classList.add('hidden');
+  document.getElementById('start-screen').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
